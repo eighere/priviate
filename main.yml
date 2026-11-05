@@ -6,17 +6,11 @@ on:
     - cron: "0 23 * * *"
   workflow_dispatch: {}
 
+# 외부 action을 쓰지 않음(저장소의 SHA 고정 정책 회피). 러너 기본 python3 사용.
 jobs:
   brief:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install deps
-        run: pip install yfinance
-
       - name: Run daily brief
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
@@ -25,6 +19,9 @@ jobs:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://api.deepseek.com' }}
           LLM_MODEL: ${{ secrets.LLM_MODEL || 'deepseek-chat' }}
         run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          pip install -q yfinance
           python3 - <<'PYCODE'
           """
           경제·AI 아침 브리핑 — 클라우드 자동화 스크립트 (GitHub Actions 용)
